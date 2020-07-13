@@ -31,7 +31,7 @@ CORS(app)
 def get_drink():
     try:
         print('>>> starting')
-        drinks = Drink.query.all()
+        drinks = Drink.query.order_by(Drink.id).all()
         print('>>> drinks:', drinks)
         print('>>> step 2')
         result = [drink.short() for drink in drinks]
@@ -40,7 +40,7 @@ def get_drink():
             abort(404) # Not found - when there are no drink
         return jsonify({'success': True, 'drinks': result})
     except:
-        abort(404) # not found
+        abort(422) 
 
 '''
 @TODO implement endpoint
@@ -54,16 +54,16 @@ def get_drink():
 def get_detailed_drink():
     try:
         print('>>> starting')
-        drinks = Drink.query.all()
+        drinks = Drink.query.order_by(Drink.id).all()
         print('>>> drinks:', drinks)
         print('>>> step 2')
-        result = [drink.short() for drink in drinks]
+        result = [drink.long() for drink in drinks]
         
         if len(result) == 0:
             abort(404) # Not found - when there are no drink
         return jsonify({'success': True, 'drinks': result})
     except:
-        abort(404) # not found
+        abort(422) 
 
 
 '''
@@ -74,9 +74,30 @@ def get_detailed_drink():
         it should contain the drink.long() data representation
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
+        
+        @app.route('/drinks', methods=['POST'])
+@requires_auth('post:drink')
+def post_drink(*args, **kwargs):
+
+  except AuthError:
+        abort(422)
 '''
-
-
+@app.route('/drinks', methods=['POST'])
+def post_drink():
+    body = request.get_json()
+    new_title = body.get('title', None)
+    new_recipe = body.get('recipe', None)
+    try:
+        new_drink = Drink(title=new_title, recipe=json.dumps([new_recipe])) 
+        new_drink.insert()
+        return jsonify({
+        'success': True,
+        'drinks': new_drink.long()
+        }, 200)
+    except:
+        abort(422)
+        
+        
 '''
 @TODO implement endpoint
     PATCH /drinks/<id>
@@ -131,21 +152,21 @@ def unprocessable(error):
 @DONE -  implement error handler for 404
     error handler should conform to general task above 
 '''
- @app.errorhandler(404)
-  def not_found(error):
+@app.errorhandler(404)
+def not_found(error):
     return jsonify({
       "success": False, 
       "error": 404,
       "message": "resource not found"
       }), 404
 
-  @app.errorhandler(400)
-  def bad_request(error):
+@app.errorhandler(400)
+def bad_request(error):
     return jsonify({
-      "success": False, 
-      "error": 400,
-      "message": "bad request"
-      }), 400
+        "success": False, 
+        "error": 400,
+        "message": "bad request"
+        }), 400
   
 
 '''
