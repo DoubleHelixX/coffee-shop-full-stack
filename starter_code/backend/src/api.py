@@ -111,8 +111,23 @@ def post_drink():
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
-@app.route('/drinks/<int:id>')
-def update_drink(id):
+@app.route('/drinks/<int:drink_id>', methods=['PATCH'])
+def update_drink(drink_id):
+    body = request.get_json()
+    new_title = body.get('title', None)
+    new_recipe = body.get('recipe', None)
+    try:
+        drink = Drink.query.get(drink_id)
+        drink.title = new_title
+        drink.recipe = json.dumps(new_recipe)
+        drink.update()
+        result = drink.long() 
+        return jsonify({'success': True, 'drinks': result})
+    except:
+        if drink is None:
+            abort(404)
+        else:
+            abort(422)
     
 
 '''
@@ -125,7 +140,19 @@ def update_drink(id):
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
-
+@app.route('/drinks/<int:drink_id>', methods=['DELETE'])
+def delete_drink(drink_id):
+    try:
+        drink = Drink.query.get(drink_id)
+        print(drink.id)
+        drink.delete()
+        return jsonify({'success': True, 'deleted': drink.id})
+    except:
+        if drink is None:
+            abort(404)
+        else:
+            abort(422)
+    
 
 ## Error Handling
 '''
