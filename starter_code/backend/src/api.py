@@ -32,10 +32,10 @@ def get_drink():
     try:
         print('>>> starting')
         drinks = Drink.query.order_by(Drink.id).all()
-        print('>>> drinks:', drinks)
+        print('GET >>> drinks:', drinks)
         print('>>> step 2')
         result = [drink.short() for drink in drinks]
-        
+        print('>>> result' , result)
         if len(result) == 0:
             abort(404) # Not found - when there are no drink
         return jsonify({'success': True, 'drinks': result})
@@ -86,9 +86,11 @@ def post_drink(*args, **kwargs):
 def post_drink():
     body = request.get_json()
     new_title = body.get('title', None)
+    #new_recipe="""{}""".format(body['recipe'],None)
     new_recipe = body.get('recipe', None)
+    print('POST >>>>', new_title, new_recipe)
     try:
-        new_drink = Drink(title=new_title, recipe=json.dumps([new_recipe])) 
+        new_drink = Drink(title=new_title, recipe=json.dumps(new_recipe)) 
         new_drink.insert()
         return jsonify({
         'success': True,
@@ -109,7 +111,9 @@ def post_drink():
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
-
+@app.route('/drinks/<int:id>')
+def update_drink(id):
+    
 
 '''
 @TODO implement endpoint
