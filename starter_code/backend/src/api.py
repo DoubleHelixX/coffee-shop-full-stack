@@ -16,7 +16,7 @@ CORS(app)
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 '''
-db_drop_and_create_all()
+#db_drop_and_create_all()
 
 ## ROUTES
 '''
@@ -86,7 +86,10 @@ def post_drink(*args, **kwargs):
     new_recipe = body.get('recipe', None)
     print('POST >>>>', new_title, new_recipe)
     try:
-        #TEST FOR IF ITS NOT AN ARRAY TYPE #if type(new_recipe) not a
+        #TEST FOR IF ITS NOT AN ARRAY TYPE 
+        if type(new_recipe).__name__ != 'list':
+            new_recipe = [new_recipe]
+            
         new_drink = Drink(title=new_title, recipe=json.dumps(new_recipe)) 
         new_drink.insert()
         return jsonify({
@@ -116,18 +119,23 @@ def update_drink(*args, **kwargs):
     new_title = body.get('title', None)
     new_recipe = body.get('recipe', None)
     try:
+       
         drink = Drink.query.get(drink_id)
         if drink is None:
             abort(404)
         if new_title is not None:
-            print("abc", new_title)   
+            print('1>>>', new_title)
             drink.title = new_title
         if new_recipe is not None:
-            print("cba", new_recipe)   
-            drink.recipe = json.dumps([new_recipe])
+            print(' 2>>>', new_recipe)
+             #TEST FOR IF ITS NOT AN ARRAY TYPE 
+            if type(new_recipe).__name__ != 'list':
+                new_recipe = [new_recipe]
+            drink.recipe = json.dumps(new_recipe)
+            
         drink.update()
-        result = drink.long() 
-        return jsonify({'success': True, 'drinks': result})
+       
+        return jsonify({'success': True, 'drinks': drink.long() }, 200)
     except AuthError:
         abort(422)
     
@@ -147,9 +155,7 @@ def update_drink(*args, **kwargs):
 def delete_drink(*args, **kwargs):
     try:
         drink_id =kwargs.get('drink_id', None)
-        print('>>>>>>>>>>>', drink_id)
         drink = Drink.query.get(drink_id)
-        print('>>>>>>>>>>>', drink)
         if drink is None:
             abort(404)
         drink.delete()
