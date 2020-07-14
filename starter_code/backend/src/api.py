@@ -51,7 +51,8 @@ def get_drink():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks-detail')
-def get_detailed_drink():
+@requires_auth('get:drinks-detail')
+def get_detailed_drink(*args, **kwargs):
     try:
         print('>>> starting')
         drinks = Drink.query.order_by(Drink.id).all()
@@ -62,7 +63,7 @@ def get_detailed_drink():
         if len(result) == 0:
             abort(404) # Not found - when there are no drink
         return jsonify({'success': True, 'drinks': result})
-    except:
+    except AuthError:
         abort(422) 
 
 
@@ -75,15 +76,10 @@ def get_detailed_drink():
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
         
-        @app.route('/drinks', methods=['POST'])
-@requires_auth('post:drink')
-def post_drink(*args, **kwargs):
-
-  except AuthError:
-        abort(422)
 '''
 @app.route('/drinks', methods=['POST'])
-def post_drink():
+@requires_auth('post:drinks')
+def post_drink(*args, **kwargs):
     body = request.get_json()
     new_title = body.get('title', None)
     #new_recipe="""{}""".format(body['recipe'],None)
@@ -96,9 +92,9 @@ def post_drink():
         'success': True,
         'drinks': new_drink.long()
         }, 200)
-    except:
+    except AuthError:
         abort(422)
-        
+          
         
 '''
 @TODO implement endpoint
@@ -112,22 +108,23 @@ def post_drink():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks/<int:drink_id>', methods=['PATCH'])
-def update_drink(drink_id):
+@requires_auth('patch:drinks')
+def update_drink(*args, **kwargs):
+    drink_id =kwargs.get('drink_id', None)
     body = request.get_json()
     new_title = body.get('title', None)
     new_recipe = body.get('recipe', None)
     try:
         drink = Drink.query.get(drink_id)
+        if drink is None:
+            abort(404)
         drink.title = new_title
         drink.recipe = json.dumps(new_recipe)
         drink.update()
         result = drink.long() 
         return jsonify({'success': True, 'drinks': result})
-    except:
-        if drink is None:
-            abort(404)
-        else:
-            abort(422)
+    except AuthError:
+        abort(422)
     
 
 '''
@@ -141,17 +138,19 @@ def update_drink(drink_id):
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks/<int:drink_id>', methods=['DELETE'])
-def delete_drink(drink_id):
+@requires_auth('delete:drinks')
+def delete_drink(*args, **kwargs):
     try:
+        drink_id =kwargs.get('drink_id', None)
+        print('>>>>>>>>>>>', drink_id)
         drink = Drink.query.get(drink_id)
-        print(drink.id)
-        drink.delete()
-        return jsonify({'success': True, 'deleted': drink.id})
-    except:
+        print('>>>>>>>>>>>', drink)
         if drink is None:
             abort(404)
-        else:
-            abort(422)
+        drink.delete()
+        return jsonify({'success': True, 'deleted': drink.id})
+    except AuthError: 
+        abort(422)
     
 
 ## Error Handling
