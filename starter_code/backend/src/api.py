@@ -86,7 +86,7 @@ def post_drink(*args, **kwargs):
     new_recipe = body.get('recipe', None)
     print('POST >>>>', new_title, new_recipe)
     try:
-        new_drink = Drink(title=new_title, recipe=json.dumps(new_recipe)) 
+        new_drink = Drink(title=new_title, recipe=json.dumps([new_recipe])) 
         new_drink.insert()
         return jsonify({
         'success': True,
@@ -118,8 +118,12 @@ def update_drink(*args, **kwargs):
         drink = Drink.query.get(drink_id)
         if drink is None:
             abort(404)
-        drink.title = new_title
-        drink.recipe = json.dumps(new_recipe)
+        if new_title is not None:
+            print("abc", new_title)   
+            drink.title = new_title
+        if new_recipe is not None:
+            print("cba", new_recipe)   
+            drink.recipe = json.dumps([new_recipe])
         drink.update()
         result = drink.long() 
         return jsonify({'success': True, 'drinks': result})
