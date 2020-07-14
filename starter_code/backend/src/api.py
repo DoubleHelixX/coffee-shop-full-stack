@@ -16,7 +16,7 @@ CORS(app)
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 '''
-#db_drop_and_create_all()
+db_drop_and_create_all()
 
 ## ROUTES
 '''
@@ -86,7 +86,8 @@ def post_drink(*args, **kwargs):
     new_recipe = body.get('recipe', None)
     print('POST >>>>', new_title, new_recipe)
     try:
-        new_drink = Drink(title=new_title, recipe=json.dumps([new_recipe])) 
+        #TEST FOR IF ITS NOT AN ARRAY TYPE #if type(new_recipe) not a
+        new_drink = Drink(title=new_title, recipe=json.dumps(new_recipe)) 
         new_drink.insert()
         return jsonify({
         'success': True,
