@@ -124,18 +124,16 @@ def update_drink(*args, **kwargs):
         if drink is None:
             abort(404)
         if new_title is not None:
-            print('1>>>', new_title)
             drink.title = new_title
         if new_recipe is not None:
-            print(' 2>>>', new_recipe)
              #TEST FOR IF ITS NOT AN ARRAY TYPE 
             if type(new_recipe).__name__ != 'list':
                 new_recipe = [new_recipe]
             drink.recipe = json.dumps(new_recipe)
             
         drink.update()
-       
-        return jsonify({'success': True, 'drinks': drink.long() }, 200)
+        print('1>>',type([drink.long()]))
+        return jsonify({'success': True, 'drinks': [drink.long()] }, 200)
     except AuthError:
         abort(422)
     
