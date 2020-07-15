@@ -48,6 +48,7 @@ export class DrinkFormComponent implements OnInit {
   saveClicked() {
     this.drinkService.saveDrink(this.drink);
     this.closeModal();
+    //window.open('url', '_self')
   }
 
   deleteClicked() {
