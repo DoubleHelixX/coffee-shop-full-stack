@@ -59,6 +59,7 @@ def get_detailed_drink(*args, **kwargs):
         print('>>> drinks:', drinks)
         print('>>> step 2')
         result = [drink.long() for drink in drinks]
+        print('1>>',type(result), result)
         
         if len(result) == 0:
             abort(404) # Not found - when there are no drink
@@ -89,12 +90,13 @@ def post_drink(*args, **kwargs):
         #TEST FOR IF ITS NOT AN ARRAY TYPE 
         if type(new_recipe).__name__ != 'list':
             new_recipe = [new_recipe]
-            
-        new_drink = Drink(title=new_title, recipe=json.dumps(new_recipe)) 
+        new_recipe = json.dumps(new_recipe)
+        new_drink = Drink(title=new_title, recipe=new_recipe) 
         new_drink.insert()
+        drinkResults = Drink.query.get(new_drink.id)
         return jsonify({
         'success': True,
-        'drinks': new_drink.long()
+        'drinks': drinkResults.long()
         }, 200)
     except AuthError:
         abort(422)
@@ -132,8 +134,9 @@ def update_drink(*args, **kwargs):
             drink.recipe = json.dumps(new_recipe)
             
         drink.update()
-        print('1>>',type([drink.long()]))
-        return jsonify({'success': True, 'drinks': [drink.long()] }, 200)
+        drinkResults = [Drink.query.get(drink.id).long()]
+        print('2>>',type(drinkResults), drinkResults)
+        return jsonify({'success': True, 'drinks': drinkResults})
     except AuthError:
         abort(422)
     
